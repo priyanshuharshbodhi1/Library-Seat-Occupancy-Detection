@@ -1,2 +1,53 @@
+# Virtual environment
 /venv
-*/__pycache__
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Model files (large files to be downloaded separately)
+*.pt
+*.weights
+*.onnx
+traced_model.pt
+yolov7.pt
+
+# Output directories
+runs/
+output/
+results/
+
+# Data files
+*.mp4
+*.avi
+*.mov
+*.mkv
+data/*.mp4
+data/*.avi
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
