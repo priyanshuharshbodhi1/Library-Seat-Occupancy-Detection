@@ -6,7 +6,7 @@ Get SeatWatch running in 5 minutes! Follow these steps to detect seat occupancy 
 
 ```bash
 # 1. Clone and enter directory
-git clone https://github.com/yourusername/Library-Seat-Occupancy-Detection
+git clone https://github.com/priyanshuharshbodhi1/Library-Seat-Occupancy-Detection
 cd Library-Seat-Occupancy-Detection
 
 # 2. Create virtual environment

@@ -58,7 +58,7 @@ SeatWatch is an AI-powered system that monitors library seat occupancy in real-t
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/Library-Seat-Occupancy-Detection
+   git clone https://github.com/priyanshuharshbodhi1/Library-Seat-Occupancy-Detection
    cd Library-Seat-Occupancy-Detection
    ```
 
@@ -261,7 +261,7 @@ For detailed technical documentation and research background, see:
 
 - **Author**: Asuman Sare ERGUT  
 - **Email**: asumansaree@gmail.com
-- **Issues**: [GitHub Issues](https://github.com/yourusername/Library-Seat-Occupancy-Detection/issues)
+- **Issues**: [GitHub Issues](https://github.com/priyanshuharshbodhi1/Library-Seat-Occupancy-Detection/issues)
 
 ---
 
