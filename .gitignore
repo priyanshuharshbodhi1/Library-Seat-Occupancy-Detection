@@ -51,3 +51,18 @@ logs/
 *.tmp
 *.temp
 .cache/
+
+# API-specific
+uploads/*
+!uploads/.gitkeep
+outputs/*
+!outputs/.gitkeep
+jobs/*
+!jobs/.gitkeep
+api/logs/*
+!api/logs/.gitkeep
+.env
+
+# Docker
+.dockerignore
+.claude

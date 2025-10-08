@@ -88,12 +88,57 @@ SeatWatch is an AI-powered system that monitors library seat occupancy in real-t
 
 ## 💻 Usage
 
-### Basic Usage
+### Option 1: REST API (Recommended for Production)
+
+The project now includes a full-featured REST API for video processing via HTTP requests.
+
+```bash
+# Quick start with Python script
+python run_api.py
+
+# Or with Docker
+docker-compose up -d
+```
+
+**Upload video and get results:**
+```python
+import requests
+
+# Upload video
+response = requests.post(
+    "http://localhost:8000/api/detect",
+    files={"video": open("library_video.mp4", "rb")}
+)
+job_id = response.json()["job_id"]
+
+# Check status
+status = requests.get(f"http://localhost:8000/api/jobs/{job_id}").json()
+
+# Download results
+requests.get(f"http://localhost:8000/api/download/{job_id}")
+```
+
+📖 **Full API Documentation**: See [API_README.md](API_README.md)
+
+**API Features:**
+- 🌐 RESTful HTTP endpoints
+- 📤 Video upload via multipart/form-data
+- 📊 JSON results with detection statistics
+- 🎥 Download processed videos
+- 📈 Real-time progress tracking
+- 🐳 Docker support
+- 📝 Interactive API docs at `/docs`
+
+---
+
+### Option 2: Command Line (Direct Processing)
+
+#### Basic Usage
 ```bash
 python detect_and_track.py --source your_video.mp4
 ```
 
-### Advanced Usage
+#### Advanced Usage
 ```bash
 python detect_and_track.py \
     --weights yolov7.pt \
@@ -104,7 +149,7 @@ python detect_and_track.py \
     --view-img
 ```
 
-### Command Line Arguments
+#### Command Line Arguments
 
 | Argument | Description | Default | Example |
 |----------|-------------|---------|---------|
@@ -115,7 +160,7 @@ python detect_and_track.py \
 | `--name` | Output experiment name | Auto-generated | `"my_test"` |
 | `--view-img` | Show real-time video preview | `False` | Add flag |
 
-### Detected Classes
+#### Detected Classes
 - **Class 0**: Person (human detection) 👤
 - **Class 56**: Chair (furniture detection) 🪑  
 - Use `--classes 0 56` to detect only people and chairs for better performance
