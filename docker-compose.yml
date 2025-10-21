@@ -16,7 +16,7 @@ services:
       - ./jobs:/app/jobs
       - ./api/logs:/app/api/logs
       # Mount model weights (if downloaded locally)
-      - ./yolov7.pt:/app/yolov7.pt
+      # - ./yolov7.pt:/app/yolov7.pt  # Commented out - model is downloaded in Dockerfile
     environment:
       # API Configuration
       - API_HOST=0.0.0.0

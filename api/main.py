@@ -145,7 +145,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
             error="HTTPException",
             message=exc.detail,
             timestamp=datetime.now()
-        ).dict()
+        ).model_dump(mode='json')
     )
 
 
@@ -159,7 +159,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
             message="Request validation failed",
             detail=str(exc),
             timestamp=datetime.now()
-        ).dict()
+        ).model_dump(mode='json')
     )
 
 
@@ -174,7 +174,7 @@ async def general_exception_handler(request: Request, exc: Exception):
             message="An unexpected error occurred",
             detail=str(exc) if settings.debug else None,
             timestamp=datetime.now()
-        ).dict()
+        ).model_dump(mode='json')
     )
 
 

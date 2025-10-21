@@ -47,7 +47,7 @@ class Job:
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "progress": self.progress,
             "message": self.message,
-            "results": self.results.dict() if self.results else None,
+            "results": self.results.model_dump(mode='json') if self.results else None,
             "error": self.error
         }
 
