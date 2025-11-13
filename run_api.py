@@ -6,6 +6,12 @@ import os
 import sys
 from pathlib import Path
 
+# Fix Windows console encoding for emojis
+if sys.platform == 'win32':
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 def check_requirements():
     """Check if required packages are installed"""
     required_packages = [

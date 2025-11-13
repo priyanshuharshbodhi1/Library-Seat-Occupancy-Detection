@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Seat Occupancy System</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>📚 Library Seat Monitor</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#webcam" class="nav-link active" data-page="webcam">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                        Webcam Control
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#seatmap" class="nav-link" data-page="seatmap">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                        </svg>
+                        Seat Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#analytics" class="nav-link" data-page="analytics">
+                        <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Analytics
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- Webcam Control Page -->
+        <div id="webcam-page" class="page active">
+            <div class="page-header">
+                <h1>Webcam Control & Live Feed</h1>
+                <p>Control the camera and monitor live detection</p>
+            </div>
+
+            <div class="control-panel">
+                <div class="status-bar">
+                    <div id="statusIndicator" class="status-badge status-stopped">
+                        <span class="status-dot"></span>
+                        Camera Stopped
+                    </div>
+                    <div class="camera-selector">
+                        <label for="cameraSelect">Camera:</label>
+                        <select id="cameraSelect" class="form-select">
+                            <option value="0">Camera 0 (Default)</option>
+                            <option value="1">Camera 1</option>
+                            <option value="2">Camera 2</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button id="startBtn" class="btn btn-success" onclick="startCamera()">
+                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Start Camera
+                        </button>
+                        <button id="stopBtn" class="btn btn-danger" onclick="stopCamera()" disabled>
+                            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
+                            </svg>
+                            Stop Camera
+                        </button>
+                    </div>
+                </div>
+
+                <div class="video-grid">
+                    <div class="video-section">
+                        <div class="video-container">
+                            <img id="videoStream" class="video-stream" style="display:none;" alt="Video stream">
+                            <div id="videoPlaceholder" class="video-placeholder">
+                                <svg class="placeholder-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                                <p>Click "Start Camera" to begin monitoring</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats-section">
+                        <h3 class="section-title">Live Statistics</h3>
+                        <div class="stats-cards">
+                            <div class="stat-card stat-primary">
+                                <div class="stat-icon">📊</div>
+                                <div class="stat-value" id="totalSeats">0</div>
+                                <div class="stat-label">Total Seats</div>
+                            </div>
+                            <div class="stat-card stat-success">
+                                <div class="stat-icon">✅</div>
+                                <div class="stat-value" id="availableSeats">0</div>
+                                <div class="stat-label">Available</div>
+                            </div>
+                            <div class="stat-card stat-danger">
+                                <div class="stat-icon">🔴</div>
+                                <div class="stat-value" id="occupiedSeats">0</div>
+                                <div class="stat-label">Occupied</div>
+                            </div>
+                            <div class="stat-card stat-info">
+                                <div class="stat-icon">👥</div>
+                                <div class="stat-value" id="personCount">0</div>
+                                <div class="stat-label">People</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-feed">
+                            <h4>Recent Activity</h4>
+                            <div id="activityLog" class="activity-list">
+                                <div class="activity-item">
+                                    <span class="activity-time">--:--</span>
+                                    <span class="activity-text">Waiting for camera to start...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seat Map Page -->
+        <div id="seatmap-page" class="page">
+            <div class="page-header">
+                <h1>Real-Time Seat Map</h1>
+                <p>Visual representation of seat occupancy</p>
+            </div>
+
+            <div class="seatmap-container">
+                <div class="seatmap-controls">
+                    <div class="legend">
+                        <h3>Legend</h3>
+                        <div class="legend-items">
+                            <div class="legend-item">
+                                <div class="seat-icon seat-available"></div>
+                                <span>Available</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="seat-icon seat-occupied"></div>
+                                <span>Occupied</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="seat-icon seat-exceeded"></div>
+                                <span>Time Exceeded</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="seatmap-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="mapTotalSeats">0</span>
+                            <span class="stat-text">Total</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-number stat-success" id="mapAvailableSeats">0</span>
+                            <span class="stat-text">Available</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <span class="stat-number stat-danger" id="mapOccupiedSeats">0</span>
+                            <span class="stat-text">Occupied</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="seat-grid-container">
+                    <div id="seatGrid" class="seat-grid">
+                        <!-- Seats will be dynamically generated here -->
+                        <div class="empty-state">
+                            <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            <p>Start the webcam to detect and display seats</p>
+                            <button class="btn btn-primary" onclick="navigateToPage('webcam')">Go to Webcam Control</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div id="analytics-page" class="page">
+            <div class="page-header">
+                <h1>Analytics & Insights</h1>
+                <p>Occupancy trends and statistics</p>
+            </div>
+
+            <div class="analytics-container">
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Occupancy Rate</h3>
+                        <div class="occupancy-meter">
+                            <div class="meter-bar">
+                                <div id="occupancyBar" class="meter-fill" style="width: 0%"></div>
+                            </div>
+                            <div class="meter-label">
+                                <span id="occupancyPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Average Duration</h3>
+                        <div class="metric-display">
+                            <div class="metric-value" id="avgDuration">0:00</div>
+                            <div class="metric-label">minutes</div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card">
+                        <h3>Peak Usage</h3>
+                        <div class="metric-display">
+                            <div class="metric-value" id="peakUsage">--:--</div>
+                            <div class="metric-label">time</div>
+                        </div>
+                    </div>
+
+                    <div class="analytics-card full-width">
+                        <h3>Seat Details</h3>
+                        <div id="seatDetails" class="seat-details-list">
+                            <div class="empty-state-small">
+                                <p>No seat data available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/static/js/app.js?v=2.0"></script>
+</body>
+</html>

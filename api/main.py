@@ -4,16 +4,19 @@ FastAPI main application for Library Seat Occupancy Detection
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime
+from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.config import settings
-from api.routes import detection
+from api.routes import detection, webcam, webcam_browser
 from api.models.schemas import HealthResponse, ErrorResponse
 from api.services.job_manager import get_job_manager
+from api.models.database import init_db
 
 # Configure logging
 logging.basicConfig(
@@ -31,6 +34,13 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.environment}")
     logger.info(f"Debug mode: {settings.debug}")
     logger.info(f"Model weights: {settings.weights_path}")
+
+    # Initialize database
+    try:
+        init_db()
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize database: {e}")
 
     # Initialize job manager
     job_manager = get_job_manager()
@@ -87,6 +97,14 @@ if settings.cors_enabled:
 
 # Include routers
 app.include_router(detection.router)
+app.include_router(webcam.router)
+app.include_router(webcam_browser.router)
+
+# Mount static files
+static_path = settings.base_dir / "static"
+if static_path.exists():
+    app.mount("/static", StaticFiles(directory=str(static_path)), name="static")
+    logger.info(f"Mounted static files from {static_path}")
 
 
 # Health check endpoint
@@ -118,19 +136,33 @@ async def root():
     """
     Root endpoint
 
-    Returns welcome message and API information.
+    Serves the frontend monitoring dashboard or returns API information.
     """
+    # Try new app first, fallback to old index
+    static_app = settings.base_dir / "static" / "app.html"
+    static_index = settings.base_dir / "static" / "index.html"
+
+    if static_app.exists():
+        return FileResponse(static_app)
+    elif static_index.exists():
+        return FileResponse(static_index)
+
     return {
         "message": "Library Seat Occupancy Detection API",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/health",
+        "monitor": "/",
         "endpoints": {
             "detect": "POST /api/detect - Upload video for detection",
             "status": "GET /api/jobs/{job_id} - Get job status",
             "download": "GET /api/download/{job_id} - Download results",
             "list_jobs": "GET /api/jobs - List all jobs",
-            "delete_job": "DELETE /api/jobs/{job_id} - Delete a job"
+            "delete_job": "DELETE /api/jobs/{job_id} - Delete a job",
+            "webcam_start": "POST /api/webcam/start - Start webcam detection",
+            "webcam_stop": "POST /api/webcam/stop - Stop webcam detection",
+            "webcam_stream": "GET /api/webcam/stream - Video stream",
+            "webcam_occupancy": "GET /api/webcam/occupancy - Get occupancy data"
         }
     }
 

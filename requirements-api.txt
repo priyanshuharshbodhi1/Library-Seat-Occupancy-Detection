@@ -20,6 +20,7 @@ python-dotenv>=1.0.0
 # Additional Utilities
 python-jose[cryptography]>=3.3.0  # JWT tokens (if using API keys)
 passlib[bcrypt]>=1.7.4  # Password hashing (if adding authentication)
+sqlalchemy
 
 # Keep all base requirements from requirements.txt:
 # matplotlib>=3.2.2
