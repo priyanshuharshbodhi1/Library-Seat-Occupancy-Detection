@@ -328,7 +328,16 @@ function updateStatsFromDetections(result) {
     if (data.seats) {
         AppState.seatData = {};
         data.seats.forEach(seat => {
-            AppState.seatData[seat.id] = seat;
+            // Transform backend format to frontend format
+            AppState.seatData[seat.id] = {
+                id: seat.id,
+                status: seat.occupied ? 'occupied' : 'available',
+                occupied: seat.occupied,
+                duration: seat.duration || 0,
+                duration_exceeded: seat.time_exceeded || false,
+                time_exceeded: seat.time_exceeded || false,
+                bbox: seat.bbox
+            };
         });
 
         // Check for changes and log activity

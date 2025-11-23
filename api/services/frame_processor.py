@@ -27,7 +27,7 @@ class FrameProcessor:
         self,
         weights_path: str = "yolov7.pt",
         img_size: int = 640,
-        conf_threshold: float = 0.4,
+        conf_threshold: float = 0.15,
         iou_threshold: float = 0.45,
         device: str = "",
         classes: Optional[List[int]] = None,

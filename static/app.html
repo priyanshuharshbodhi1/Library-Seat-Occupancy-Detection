@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library Seat Occupancy System</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/seat-grid.css">
 </head>
 <body>
     <nav class="navbar">
@@ -138,6 +139,10 @@
             <div class="page-header">
                 <h1>Real-Time Seat Map</h1>
                 <p>Visual representation of seat occupancy</p>
+                <div class="data-source-indicator" id="dataSourceIndicator" style="margin-top: 10px; font-size: 14px; color: #4299e1;">
+                    <span id="dataSourceText">📡 Loading data...</span>
+                    <span id="lastRefreshTime" style="margin-left: 15px; color: #718096;"></span>
+                </div>
             </div>
 
             <div class="seatmap-container">
@@ -243,6 +248,6 @@
         </div>
     </main>
 
-    <script src="/static/js/app.js?v=2.0"></script>
+    <script src="/static/js/app.js?v=3.1"></script>
 </body>
 </html>

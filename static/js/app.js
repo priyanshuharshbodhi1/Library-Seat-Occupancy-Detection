@@ -48,6 +48,8 @@ function setupNavigation() {
 }
 
 function navigateToPage(pageName) {
+    console.log('Navigating to page:', pageName);
+
     // Update active nav link
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
@@ -66,9 +68,135 @@ function navigateToPage(pageName) {
 
     // Refresh data for the page
     if (pageName === 'seatmap') {
-        updateSeatMap();
+        console.log('Current seat data:', AppState.seatData);
+        console.log('Number of seats:', Object.keys(AppState.seatData).length);
+
+        // If camera is not running, fetch from database
+        if (!AppState.isRunning) {
+            console.log('Camera not running, fetching from database...');
+            fetchAndUpdateSeatMap();
+            // Start auto-refresh from database
+            startDatabaseRefresh();
+        } else {
+            updateSeatMap();
+        }
     } else if (pageName === 'analytics') {
         updateAnalytics();
+    } else {
+        // Stop database refresh when leaving seat map
+        stopDatabaseRefresh();
+    }
+}
+
+// Database refresh for seat map
+let databaseRefreshInterval = null;
+
+function startDatabaseRefresh() {
+    // Don't refresh from database if camera is running
+    if (AppState.isRunning) return;
+
+    stopDatabaseRefresh(); // Clear any existing interval
+
+    // Refresh every 2 seconds
+    databaseRefreshInterval = setInterval(() => {
+        if (AppState.currentPage === 'seatmap' && !AppState.isRunning) {
+            fetchAndUpdateSeatMap();
+        } else {
+            stopDatabaseRefresh();
+        }
+    }, 2000);
+
+    console.log('Started database auto-refresh for seat map');
+}
+
+function stopDatabaseRefresh() {
+    if (databaseRefreshInterval) {
+        clearInterval(databaseRefreshInterval);
+        databaseRefreshInterval = null;
+        console.log('Stopped database auto-refresh');
+    }
+}
+
+async function fetchAndUpdateSeatMap() {
+    try {
+        const response = await fetch(`${AppState.API_BASE}/api/process/seats`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update stats
+            AppState.stats = {
+                totalSeats: data.total_seats || 0,
+                occupiedSeats: data.occupied_seats || 0,
+                availableSeats: data.available_seats || 0,
+                personCount: 0
+            };
+
+            // Transform database seats to frontend format
+            AppState.seatData = {};
+            if (data.seats) {
+                data.seats.forEach(seat => {
+                    AppState.seatData[seat.id] = {
+                        id: seat.id,
+                        status: seat.status,
+                        occupied: seat.status === 'occupied',
+                        duration: seat.duration || 0,
+                        duration_exceeded: seat.duration_exceeded || false,
+                        time_exceeded: seat.duration_exceeded || false,
+                        bbox: seat.bbox,
+                        occupied_since: seat.occupied_since
+                    };
+                });
+            }
+
+            console.log(`Fetched ${data.seats?.length || 0} seats from database`);
+
+            // Update the display
+            updateStatsDisplay();
+            updateSeatMap();
+            updateDataSourceIndicator('database');
+        }
+
+    } catch (error) {
+        console.error('Error fetching seats from database:', error);
+        updateDataSourceIndicator('error');
+    }
+}
+
+function updateDataSourceIndicator(source) {
+    const indicator = document.getElementById('dataSourceText');
+    const timeIndicator = document.getElementById('lastRefreshTime');
+
+    if (!indicator) return;
+
+    const now = new Date().toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+
+    if (source === 'database') {
+        indicator.innerHTML = '💾 Library Camera Data (Database)';
+        indicator.style.color = '#48bb78'; // Green
+        if (timeIndicator) {
+            timeIndicator.textContent = `Updated: ${now}`;
+        }
+    } else if (source === 'live') {
+        indicator.innerHTML = '🎥 Live Camera Feed';
+        indicator.style.color = '#4299e1'; // Blue
+        if (timeIndicator) {
+            timeIndicator.textContent = `Live`;
+        }
+    } else if (source === 'error') {
+        indicator.innerHTML = '⚠️ Unable to fetch data';
+        indicator.style.color = '#f56565'; // Red
+        if (timeIndicator) {
+            timeIndicator.textContent = `Error at ${now}`;
+        }
     }
 }
 
@@ -310,6 +438,8 @@ async function processFrame() {
 function updateStatsFromDetections(result) {
     const data = result.occupancy;
 
+    console.log('Processing detection results:', data);
+
     // Store previous state
     const prevStats = { ...AppState.stats };
 
@@ -326,10 +456,22 @@ function updateStatsFromDetections(result) {
 
     // Update seat data
     if (data.seats) {
+        console.log('Received seats from backend:', data.seats.length);
         AppState.seatData = {};
         data.seats.forEach(seat => {
-            AppState.seatData[seat.id] = seat;
+            // Transform backend format to frontend format
+            AppState.seatData[seat.id] = {
+                id: seat.id,
+                status: seat.occupied ? 'occupied' : 'available',
+                occupied: seat.occupied,
+                duration: seat.duration || 0,
+                duration_exceeded: seat.time_exceeded || false,
+                time_exceeded: seat.time_exceeded || false,
+                bbox: seat.bbox
+            };
         });
+
+        console.log('Stored seat data:', Object.keys(AppState.seatData).length, 'seats');
 
         // Check for changes and log activity
         if (prevStats.occupiedSeats !== AppState.stats.occupiedSeats) {
@@ -342,13 +484,17 @@ function updateStatsFromDetections(result) {
 
         // Update seat map if on that page
         if (AppState.currentPage === 'seatmap') {
+            console.log('Updating seat map with', Object.keys(AppState.seatData).length, 'seats');
             updateSeatMap();
+            updateDataSourceIndicator('live');
         }
 
         // Update analytics if on that page
         if (AppState.currentPage === 'analytics') {
             updateAnalytics();
         }
+    } else {
+        console.log('No seats data in response');
     }
 }
 
@@ -442,7 +588,7 @@ function resetStats() {
     updateStatsDisplay();
 }
 
-// Seat Map Visualization
+// Seat Map Visualization - Theater Style
 function updateSeatMap() {
     const seatGrid = document.getElementById('seatGrid');
     const mapTotalSeats = document.getElementById('mapTotalSeats');
@@ -463,38 +609,82 @@ function updateSeatMap() {
         seatGrid.innerHTML = `
             <div class="empty-state">
                 <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                 </svg>
-                <p>Start the webcam to detect and display seats</p>
+                <p>No seat data available</p>
+                <p class="text-muted">Library camera may not be active</p>
                 <button class="btn btn-primary" onclick="navigateToPage('webcam')">Go to Webcam Control</button>
             </div>
         `;
         return;
     }
 
-    // Create seat grid
-    let gridHTML = '';
-    seats.forEach((seat, index) => {
-        const seatClass = seat.status === 'occupied'
-            ? (seat.duration_exceeded ? 'seat-exceeded' : 'seat-occupied')
-            : 'seat-available';
+    // Organize seats into rows (6 seats per row for theater layout)
+    const seatsPerRow = 6;
+    const rows = [];
+    const sortedSeats = seats.sort((a, b) => a.id - b.id);
 
-        const duration = seat.duration ? Math.floor(seat.duration / 60) : 0;
-        const durationText = seat.status === 'occupied' ? `${duration}m` : '';
+    for (let i = 0; i < sortedSeats.length; i += seatsPerRow) {
+        rows.push(sortedSeats.slice(i, i + seatsPerRow));
+    }
 
-        gridHTML += `
-            <div class="seat-item ${seatClass}" title="Seat ${seat.id}">
-                <div class="seat-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    // Create theater-style grid with screen indicator
+    let gridHTML = `
+        <div class="theater-screen">
+            Library View / Screen
+        </div>
+    `;
+
+    // Generate rows with labels
+    rows.forEach((row, rowIndex) => {
+        const rowLabel = String.fromCharCode(65 + rowIndex); // A, B, C, D...
+
+        row.forEach((seat, seatIndex) => {
+            const seatClass = seat.status === 'occupied'
+                ? (seat.duration_exceeded ? 'seat-exceeded' : 'seat-occupied')
+                : 'seat-available';
+
+            const duration = seat.duration ? Math.floor(seat.duration / 60) : 0;
+            const durationText = seat.status === 'occupied' ? `${duration}m` : '';
+
+            // Add aisle space in the middle (after 3rd seat)
+            if (seatIndex === 3 && row.length > 3) {
+                gridHTML += `<div class="seat-aisle"></div>`;
+            }
+
+            // Seat icon based on status
+            let seatIcon = '';
+            if (seat.status === 'occupied') {
+                seatIcon = `
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
+                `;
+            } else {
+                seatIcon = `
+                    <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V7H1v7c0 1.1.9 2 2 2h1v3h2v-3h8v3h2v-3h1c1.1 0 2-.9 2-2V7z"></path>
+                    </svg>
+                `;
+            }
+
+            gridHTML += `
+                <div class="seat-item ${seatClass}"
+                     title="Row ${rowLabel} - Seat ${seatIndex + 1}\n${seat.status === 'occupied' ? 'Occupied' : 'Available'}"
+                     data-seat-id="${seat.id}">
+                    <div class="seat-icon">
+                        ${seatIcon}
+                    </div>
+                    <div class="seat-label">${rowLabel}${seatIndex + 1}</div>
+                    ${durationText ? `<div class="seat-duration">${durationText}</div>` : ''}
                 </div>
-                <div class="seat-label">S${seat.id}</div>
-                ${durationText ? `<div class="seat-duration">${durationText}</div>` : ''}
-            </div>
-        `;
+            `;
+        });
     });
 
+    // Set grid columns dynamically
+    const cols = Math.min(seatsPerRow + 1, 7); // +1 for aisle
+    seatGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
     seatGrid.innerHTML = gridHTML;
 }
 
