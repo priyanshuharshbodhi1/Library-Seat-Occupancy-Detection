@@ -66,3 +66,6 @@ api/logs/*
 # Docker
 .dockerignore
 .claude
+
+# py
+.venv
