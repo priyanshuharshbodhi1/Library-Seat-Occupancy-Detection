@@ -11,7 +11,7 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="nav-brand">
-                <h2>📚 Library Seat Monitor</h2>
+                <h2>Library Seat Occupancy System</h2>
             </div>
             <ul class="nav-menu">
                 <li class="nav-item">
@@ -31,11 +31,11 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#analytics" class="nav-link" data-page="analytics">
+                    <a href="#about" class="nav-link" data-page="about">
                         <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        Analytics
+                        About
                     </a>
                 </li>
             </ul>
@@ -99,22 +99,38 @@
                         <h3 class="section-title">Live Statistics</h3>
                         <div class="stats-cards">
                             <div class="stat-card stat-primary">
-                                <div class="stat-icon">📊</div>
+                                <div class="stat-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                </div>
                                 <div class="stat-value" id="totalSeats">0</div>
                                 <div class="stat-label">Total Seats</div>
                             </div>
                             <div class="stat-card stat-success">
-                                <div class="stat-icon">✅</div>
+                                <div class="stat-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
                                 <div class="stat-value" id="availableSeats">0</div>
                                 <div class="stat-label">Available</div>
                             </div>
                             <div class="stat-card stat-danger">
-                                <div class="stat-icon">🔴</div>
+                                <div class="stat-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                </div>
                                 <div class="stat-value" id="occupiedSeats">0</div>
                                 <div class="stat-label">Occupied</div>
                             </div>
                             <div class="stat-card stat-info">
-                                <div class="stat-icon">👥</div>
+                                <div class="stat-icon">
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
                                 <div class="stat-value" id="personCount">0</div>
                                 <div class="stat-label">People</div>
                             </div>
@@ -140,7 +156,7 @@
                 <h1>Real-Time Seat Map</h1>
                 <p>Visual representation of seat occupancy</p>
                 <div class="data-source-indicator" id="dataSourceIndicator" style="margin-top: 10px; font-size: 14px; color: #4299e1;">
-                    <span id="dataSourceText">📡 Loading data...</span>
+                    <span id="dataSourceText">Loading data...</span>
                     <span id="lastRefreshTime" style="margin-left: 15px; color: #718096;"></span>
                 </div>
             </div>
@@ -198,56 +214,66 @@
             </div>
         </div>
 
-        <!-- Analytics Page -->
-        <div id="analytics-page" class="page">
+        <!-- About Page -->
+        <div id="about-page" class="page">
             <div class="page-header">
-                <h1>Analytics & Insights</h1>
-                <p>Occupancy trends and statistics</p>
+                <h1>About This Project</h1>
+                <p>Real-Time Seat Occupancy Detection System</p>
             </div>
 
             <div class="analytics-container">
-                <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <h3>Occupancy Rate</h3>
-                        <div class="occupancy-meter">
-                            <div class="meter-bar">
-                                <div id="occupancyBar" class="meter-fill" style="width: 0%"></div>
-                            </div>
-                            <div class="meter-label">
-                                <span id="occupancyPercent">0%</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="about-section">
+                    <h3>Project Overview</h3>
+                    <p>Smart Real-Time Seat Availability and Occupancy Monitoring System for Libraries using Computer Vision, YOLOv7 Object Detection, and SORT Tracking Algorithm.</p>
+                </div>
 
-                    <div class="analytics-card">
-                        <h3>Average Duration</h3>
-                        <div class="metric-display">
-                            <div class="metric-value" id="avgDuration">0:00</div>
-                            <div class="metric-label">minutes</div>
-                        </div>
+                <div class="about-section">
+                    <h3>Team Members</h3>
+                    <div class="team-grid">
+                        <div class="team-member">Musarraf Mansoori<span>22/11/EC/051</span></div>
+                        <div class="team-member">Prashanth Kumar<span>22/11/EC/050</span></div>
+                        <div class="team-member">Priyanshu Harshbodhi<span>22/11/EC/011</span></div>
+                        <div class="team-member">Siddharth Gautam<span>22/11/EC/049</span></div>
                     </div>
+                </div>
 
-                    <div class="analytics-card">
-                        <h3>Peak Usage</h3>
-                        <div class="metric-display">
-                            <div class="metric-value" id="peakUsage">--:--</div>
-                            <div class="metric-label">time</div>
-                        </div>
-                    </div>
+                <div class="about-section">
+                    <h3>Under the Guidance of</h3>
+                    <p><strong>Dr. Ankit Kumar Jaiswal</strong><br>Assistant Professor<br>School of Engineering<br>Jawaharlal Nehru University (JNU), New Delhi</p>
+                </div>
 
-                    <div class="analytics-card full-width">
-                        <h3>Seat Details</h3>
-                        <div id="seatDetails" class="seat-details-list">
-                            <div class="empty-state-small">
-                                <p>No seat data available</p>
-                            </div>
-                        </div>
+                <div class="about-section">
+                    <h3>Department</h3>
+                    <p>Computer Science & Engineering<br>Jawaharlal Nehru University, New Delhi<br>2025</p>
+                </div>
+
+                <div class="about-section">
+                    <h3>Technologies Used</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">YOLOv7</div>
+                        <div class="tech-item">SORT Tracking</div>
+                        <div class="tech-item">Python FastAPI</div>
+                        <div class="tech-item">SQLite</div>
+                        <div class="tech-item">Docker</div>
+                        <div class="tech-item">JavaScript</div>
                     </div>
+                </div>
+
+                <div class="about-section">
+                    <h3>Key Features</h3>
+                    <ul class="feature-list">
+                        <li>Real-time seat detection and tracking</li>
+                        <li>Browser-based webcam capture</li>
+                        <li>Live seat occupancy visualization</li>
+                        <li>Database-backed persistent storage</li>
+                        <li>Multi-camera support</li>
+                        <li>RESTful API for integration</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <script src="/static/js/app.js?v=3.1"></script>
+    <script src="/static/js/app.js?v=6.1"></script>
 </body>
 </html>

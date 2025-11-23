@@ -80,8 +80,6 @@ function navigateToPage(pageName) {
         } else {
             updateSeatMap();
         }
-    } else if (pageName === 'analytics') {
-        updateAnalytics();
     } else {
         // Stop database refresh when leaving seat map
         stopDatabaseRefresh();
@@ -180,19 +178,19 @@ function updateDataSourceIndicator(source) {
     });
 
     if (source === 'database') {
-        indicator.innerHTML = '💾 Library Camera Data (Database)';
+        indicator.innerHTML = 'Data Source: Database';
         indicator.style.color = '#48bb78'; // Green
         if (timeIndicator) {
             timeIndicator.textContent = `Updated: ${now}`;
         }
     } else if (source === 'live') {
-        indicator.innerHTML = '🎥 Live Camera Feed';
+        indicator.innerHTML = 'Data Source: Live Camera';
         indicator.style.color = '#4299e1'; // Blue
         if (timeIndicator) {
             timeIndicator.textContent = `Live`;
         }
     } else if (source === 'error') {
-        indicator.innerHTML = '⚠️ Unable to fetch data';
+        indicator.innerHTML = 'Unable to fetch data';
         indicator.style.color = '#f56565'; // Red
         if (timeIndicator) {
             timeIndicator.textContent = `Error at ${now}`;
@@ -488,11 +486,6 @@ function updateStatsFromDetections(result) {
             updateSeatMap();
             updateDataSourceIndicator('live');
         }
-
-        // Update analytics if on that page
-        if (AppState.currentPage === 'analytics') {
-            updateAnalytics();
-        }
     } else {
         console.log('No seats data in response');
     }
@@ -688,78 +681,6 @@ function updateSeatMap() {
     seatGrid.innerHTML = gridHTML;
 }
 
-// Analytics Page
-function updateAnalytics() {
-    const occupancyBar = document.getElementById('occupancyBar');
-    const occupancyPercent = document.getElementById('occupancyPercent');
-    const avgDuration = document.getElementById('avgDuration');
-    const peakUsage = document.getElementById('peakUsage');
-    const seatDetails = document.getElementById('seatDetails');
-
-    // Calculate occupancy percentage
-    const percentage = AppState.stats.totalSeats > 0
-        ? Math.round((AppState.stats.occupiedSeats / AppState.stats.totalSeats) * 100)
-        : 0;
-
-    if (occupancyBar) occupancyBar.style.width = percentage + '%';
-    if (occupancyPercent) occupancyPercent.textContent = percentage + '%';
-
-    // Calculate average duration
-    const seats = Object.values(AppState.seatData);
-    const occupiedSeats = seats.filter(s => s.status === 'occupied');
-
-    if (occupiedSeats.length > 0) {
-        const totalDuration = occupiedSeats.reduce((sum, s) => sum + (s.duration || 0), 0);
-        const avgDurationSec = totalDuration / occupiedSeats.length;
-        const avgMin = Math.floor(avgDurationSec / 60);
-        const avgSec = Math.floor(avgDurationSec % 60);
-        if (avgDuration) avgDuration.textContent = `${avgMin}:${avgSec.toString().padStart(2, '0')}`;
-    } else {
-        if (avgDuration) avgDuration.textContent = '0:00';
-    }
-
-    // Peak usage (simplified - show current time if occupied)
-    if (peakUsage) {
-        if (AppState.stats.occupiedSeats > 0) {
-            const now = new Date();
-            peakUsage.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-        } else {
-            peakUsage.textContent = '--:--';
-        }
-    }
-
-    // Seat details table
-    if (seatDetails) {
-        if (seats.length === 0) {
-            seatDetails.innerHTML = `
-                <div class="empty-state-small">
-                    <p>No seat data available</p>
-                </div>
-            `;
-        } else {
-            let detailsHTML = '<table class="details-table"><thead><tr><th>Seat ID</th><th>Status</th><th>Duration</th><th>Person ID</th></tr></thead><tbody>';
-
-            seats.forEach(seat => {
-                const duration = seat.duration ? Math.floor(seat.duration / 60) + 'm' : '--';
-                const statusClass = seat.status === 'occupied' ? 'text-danger' : 'text-success';
-                const statusText = seat.status === 'occupied' ? 'Occupied' : 'Available';
-
-                detailsHTML += `
-                    <tr>
-                        <td>Seat ${seat.id}</td>
-                        <td><span class="${statusClass}">${statusText}</span></td>
-                        <td>${duration}</td>
-                        <td>${seat.person_id !== null ? seat.person_id : '--'}</td>
-                    </tr>
-                `;
-            });
-
-            detailsHTML += '</tbody></table>';
-            seatDetails.innerHTML = detailsHTML;
-        }
-    }
-}
-
 // Activity Log
 function addActivity(message) {
     const now = new Date();
@@ -812,10 +733,10 @@ function showNotification(message, type = 'info') {
     notification.className = `notification notification-${type}`;
 
     const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
+        success: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+        error: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+        warning: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>',
+        info: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 20px; height: 20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
     };
 
     notification.innerHTML = `
@@ -847,65 +768,41 @@ if (!document.getElementById('notification-styles')) {
     style.textContent = `
         .notification {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            top: 16px;
+            right: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 12px 16px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             z-index: 10000;
             transform: translateX(400px);
-            transition: transform 0.3s ease;
-            max-width: 400px;
+            transition: transform 0.2s;
+            max-width: 350px;
+            font-size: 0.75rem;
         }
         .notification.show {
             transform: translateX(0);
         }
         .notification-icon {
-            font-size: 20px;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
         }
         .notification-message {
-            font-size: 14px;
-            color: #333;
+            font-size: 0.75rem;
+            color: var(--text);
         }
-        .notification-success {
-            border-left: 4px solid #48bb78;
-        }
-        .notification-error {
-            border-left: 4px solid #f56565;
-        }
-        .notification-warning {
-            border-left: 4px solid #ed8936;
-        }
-        .notification-info {
-            border-left: 4px solid #4299e1;
-        }
-        .details-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .details-table th,
-        .details-table td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        .details-table th {
-            background: #f7fafc;
-            font-weight: 600;
-            color: #4a5568;
-        }
-        .text-danger {
-            color: #f56565;
-            font-weight: 600;
-        }
-        .text-success {
-            color: #48bb78;
-            font-weight: 600;
-        }
+        .notification-success { border-color: var(--success); }
+        .notification-success .notification-icon svg { stroke: var(--success); }
+        .notification-error { border-color: var(--danger); }
+        .notification-error .notification-icon svg { stroke: var(--danger); }
+        .notification-warning { border-color: var(--warning); }
+        .notification-warning .notification-icon svg { stroke: var(--warning); }
+        .notification-info { border-color: var(--accent); }
+        .notification-info .notification-icon svg { stroke: var(--accent); }
     `;
     document.head.appendChild(style);
 }
